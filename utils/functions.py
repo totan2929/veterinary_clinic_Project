@@ -64,11 +64,10 @@ def validate_status(status):
         raise ValueError(f"Estado inválido. Opciones: {', '.join(valid_statuses)}.")
     return candidate
 
-# --- 5 NUEVAS FUNCIONES PROPIAS (VALIDATORS PARA PETS) ---
+# --- VALIDATORS (PETS) ---
 
 def validate_pet_species(species):
     """1. Valida que la especie sea permitida y la mapea al inglés para la BD."""
-    # Diccionario: Llave (lo que escribe el usuario) -> Valor (lo que espera MySQL)
     species_map = {
         "perro": "dog",
         "gato": "cat",
@@ -77,14 +76,9 @@ def validate_pet_species(species):
         "roedor": "rodent",
         "otro": "other"
     }
-    
     candidate = str(species).strip().lower()
-    
-    # Validamos usando las llaves en español
     if candidate not in species_map:
         raise ValueError(f"Especie inválida. Opciones: {', '.join(species_map.keys())}")
-        
-    # Retornamos el valor traducido al inglés que la base de datos sí acepta
     return species_map[candidate]
 
 def validate_weight_kg(weight):
@@ -118,7 +112,7 @@ def validate_pet_name(name):
 def validate_chip_number(chip, has_chip):
     """5. Valida el número de chip solo si la mascota tiene uno."""
     if has_chip == 0:
-        return None # No tiene chip, devolvemos nulo
+        return None
     pattern = r"^[A-Za-z0-9]{9,15}$"
     candidate = str(chip).strip()
     if not re.fullmatch(pattern, candidate):
@@ -179,9 +173,9 @@ def validate_birth_date(date_str):
         return candidate
     except ValueError as err:
         raise ValueError(f"Día o mes no válido en el calendario real: {err}")
-    
-    def confirm_action_yn(prompt):
-        """Pide confirmación de seguridad (Sí/No) al usuario antes de acciones destructivas."""
+
+def confirm_action_yn(prompt):
+    """Pide confirmación de seguridad (Sí/No) al usuario antes de acciones destructivas."""
     while True:
         response = input(f"{prompt} (S/N): ").strip().upper()
         if response in ('S', 'SI', 'Y', 'YES'):
