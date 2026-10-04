@@ -67,12 +67,25 @@ def validate_status(status):
 # --- 5 NUEVAS FUNCIONES PROPIAS (VALIDATORS PARA PETS) ---
 
 def validate_pet_species(species):
-    """1. Valida que la especie sea una de las permitidas en la clínica."""
-    valid_species = ("perro", "gato", "ave", "reptil", "roedor", "otro")
+    """1. Valida que la especie sea permitida y la mapea al inglés para la BD."""
+    # Diccionario: Llave (lo que escribe el usuario) -> Valor (lo que espera MySQL)
+    species_map = {
+        "perro": "dog",
+        "gato": "cat",
+        "ave": "bird",
+        "reptil": "reptile",
+        "roedor": "rodent",
+        "otro": "other"
+    }
+    
     candidate = str(species).strip().lower()
-    if candidate not in valid_species:
-        raise ValueError(f"Especie inválida. Opciones: {', '.join(valid_species)}")
-    return candidate
+    
+    # Validamos usando las llaves en español
+    if candidate not in species_map:
+        raise ValueError(f"Especie inválida. Opciones: {', '.join(species_map.keys())}")
+        
+    # Retornamos el valor traducido al inglés que la base de datos sí acepta
+    return species_map[candidate]
 
 def validate_weight_kg(weight):
     """2. Valida que el peso sea un número decimal lógico (0.1 a 150.0 kg)."""
@@ -111,3 +124,68 @@ def validate_chip_number(chip, has_chip):
     if not re.fullmatch(pattern, candidate):
         raise ValueError("Chip inválido. Debe ser alfanumérico entre 9 y 15 caracteres.")
     return candidate
+
+def validate_pet_gender(gender):
+    """Valida el género y lo mapea al inglés para la BD."""
+    gender_map = {
+        "macho": "male",
+        "hembra": "female"
+    }
+    candidate = str(gender).strip().lower()
+    if candidate not in gender_map:
+        raise ValueError(f"Género inválido. Opciones: {', '.join(gender_map.keys())}")
+    return gender_map[candidate]
+
+def validate_pet_breed(breed):
+    """Valida la raza (alfanumérico, 2-60 caracteres)."""
+    pattern = r"^[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ ]{2,60}$"
+    candidate = str(breed).strip()
+    if not re.fullmatch(pattern, candidate):
+        raise ValueError("Raza inválida. Use letras o números (2-60 caracteres).")
+    return candidate
+
+def validate_pet_color(color):
+    """Valida el color de la mascota (permite letras, espacios y guiones)."""
+    pattern = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ \-]{2,50}$"
+    candidate = str(color).strip()
+    if not re.fullmatch(pattern, candidate):
+        raise ValueError("Color inválido. Use letras y guiones (2-50 caracteres).")
+    return candidate
+
+def validate_pet_coat(coat):
+    """Valida el tipo de pelaje."""
+    pattern = r"^[A-Za-zÁÉÍÓÚáéíóúÑñ ]{2,50}$"
+    candidate = str(coat).strip()
+    if not re.fullmatch(pattern, candidate):
+        raise ValueError("Pelaje inválido. Solo use letras (2-50 caracteres).")
+    return candidate
+
+def validate_birth_date(date_str):
+    """Valida que la fecha tenga el formato AAAA-MM-DD y no sea futura."""
+    pattern = r"^\d{4}-\d{2}-\d{2}$"
+    candidate = str(date_str).strip()
+    if not re.fullmatch(pattern, candidate):
+        raise ValueError(
+            "El dato ingresado no tiene la estructura requerida. "
+            "La fecha debe cumplir el formato estricto AAAA-MM-DD (ej: 1994-06-15)."
+        )
+    try:
+        parsed_date = datetime.strptime(candidate, "%Y-%m-%d").date()
+        if parsed_date > datetime.now().date():
+            raise ValueError(
+                "El dato ingresado no tiene la estructura requerida. "
+                "La fecha de nacimiento no puede ser futura."
+            )
+        return candidate
+    except ValueError as err:
+        raise ValueError(f"Día o mes no válido en el calendario real: {err}")
+    
+    def confirm_action_yn(prompt):
+        """Pide confirmación de seguridad (Sí/No) al usuario antes de acciones destructivas."""
+    while True:
+        response = input(f"{prompt} (S/N): ").strip().upper()
+        if response in ('S', 'SI', 'Y', 'YES'):
+            return True
+        elif response in ('N', 'NO'):
+            return False
+        print("Entrada inválida. Por favor, ingrese 'S' para Sí o 'N' para No.")

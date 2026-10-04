@@ -7,7 +7,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')
 from database.db_connection import execute_write_operation_returning_id, execute_single_query
 from utils.functions import (
     clear_screen, pause, validate_doc_number, validate_pet_name, 
-    validate_pet_species, validate_weight_kg, validate_boolean_yn, validate_chip_number
+    validate_pet_species, validate_weight_kg, validate_boolean_yn, validate_chip_number,
+    validate_pet_breed, validate_pet_gender, validate_birth_date, validate_pet_color, validate_pet_coat
 )
 
 def create_pet():
@@ -22,10 +23,15 @@ def create_pet():
             raise ValueError("El propietario no existe. Debe registrarlo primero.")
         owner_id = owner['owner_id']
 
-        # 2. Captura de datos de la mascota usando TUS 5 FUNCIONES NUEVAS
+        # 2. Captura de todos los datos obligatorios
         name = validate_pet_name(input("Nombre de la mascota: "))
         species = validate_pet_species(input("Especie (perro/gato/ave/reptil/roedor/otro): "))
+        breed = validate_pet_breed(input("Raza: "))
+        gender = validate_pet_gender(input("Género (macho/hembra): "))
+        birth_date = validate_birth_date(input("Fecha de nac. estimada (AAAA-MM-DD): "))
         weight_kg = validate_weight_kg(input("Peso en KG (Ej: 12.5): "))
+        color = validate_pet_color(input("Color: "))
+        coat = validate_pet_coat(input("Tipo de pelaje (Ej: Corto, Largo): "))
         
         has_chip_input = validate_boolean_yn(input("¿Tiene Chip? (S/N): "))
         chip_number = None
@@ -33,14 +39,20 @@ def create_pet():
             chip_number = validate_chip_number(input("Número de Chip: "), has_chip_input)
 
         is_neutered = validate_boolean_yn(input("¿Está esterilizado? (S/N): "))
-        is_alive = 1 # Por defecto al crear una mascota, asumimos que está viva
+        is_alive = 1 # Por defecto está viva al registrarse
 
-        # 3. Inserción
+        # 3. Inserción con todos los campos
         sql = """
-            INSERT INTO pets (owner_id, name, species, weight_kg, has_chip, chip_number, is_neutered, is_alive)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO pets (
+                owner_id, name, species, breed, gender, estimated_birth_date, 
+                weight_kg, color, coat, has_chip, chip_number, is_neutered, is_alive
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        params = (owner_id, name, species, weight_kg, has_chip_input, chip_number, is_neutered, is_alive)
+        params = (
+            owner_id, name, species, breed, gender, birth_date, 
+            weight_kg, color, coat, has_chip_input, chip_number, is_neutered, is_alive
+        )
         affected_rows, new_pet_id = execute_write_operation_returning_id(sql, params)
 
         # 4. Salida
