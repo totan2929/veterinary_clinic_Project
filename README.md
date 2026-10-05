@@ -1,146 +1,348 @@
-```markdown
-# 🐾 Sistema de Gestión Veterinaria (Backend API RESTful)
+# 🐾 Sistema de Gestión Veterinaria
+
+Backend para la gestión de una clínica veterinaria, desarrollado como proyecto académico de **Programación V**. El sistema permite administrar propietarios y mascotas mediante operaciones CRUD, utilizando Python y MySQL.
+
+---
 
 ## 🎓 Información Académica
+
 * **Materia:** Programación V
 * **Institución:** CIAF
 * **Entrega:** Trabajo del Corte 1
 * **Fecha:** Octubre 2026
-* **Autores:** 
+* **Autores:**
+
   * Jonathan Cañola Salazar
   * Jorge Andrés García Mojica
 
+---
+
 ## 📝 Descripción del Proyecto
-Este proyecto es una implementación backend orientada a la gestión de una clínica veterinaria. Actúa como una interfaz de línea de comandos (CLI) que simula el comportamiento de una API RESTful, interactuando directamente con una base de datos relacional (MySQL). El sistema permite administrar dos entidades principales de manera transaccional: **Propietarios (`owners`)** y **Mascotas (`pets`)**.
 
-El desarrollo se enfoca en el cumplimiento estricto de buenas prácticas de programación, separación de responsabilidades (arquitectura multicapa), seguridad de acceso a datos y experiencia de usuario en consola.
+Este proyecto es una implementación backend orientada a la gestión de una clínica veterinaria.
 
-## 🏗️ Arquitectura y Patrones de Diseño
-El código está estructurado en un patrón modular que separa la lógica de negocio, el acceso a datos y las rutas de ejecución:
+El sistema funciona como una interfaz de línea de comandos (CLI) que simula el comportamiento de una API RESTful, interactuando directamente con una base de datos relacional **MySQL**.
 
-* **Capa de Enrutamiento (`routes/`):** Contiene los scripts ejecutables que simulan los métodos HTTP (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`). Intercambian datos con el usuario y emiten respuestas en formato JSON estructurado.
-* **Capa de Acceso a Datos (`database/db_connection.py`):** Centraliza la conexión a MySQL, implementando el principio *Fail-Fast* y manejando el control de transacciones (ACID) mediante `COMMIT` y `ROLLBACK`[cite: 5].
-* **Capa de Utilidades y Reglas de Negocio (`utils/functions.py`):** Aisla las validaciones estrictas (Regex) y mapeos de datos (español a inglés) para mantener los controladores limpios[cite: 16].
+Actualmente permite administrar dos entidades principales:
 
-## 🛡️ Seguridad y Buenas Prácticas Implementadas
-1. **Prevención de Inyección SQL (CWE-89):** Todas las consultas a la base de datos utilizan parámetros preparados (`%s`) en lugar de concatenación de strings[cite: 5].
-2. **Protección de Credenciales (CWE-798):** Las variables sensibles de conexión a la base de datos se consumen desde un archivo `.env` externo, el cual está excluido del control de versiones mediante `.gitignore`[cite: 5].
-3. **Manejo Seguro de Errores (CWE-209):** Uso de bloques `try-except` para capturar excepciones, enmascarar errores internos del servidor y devolver mensajes JSON amigables sin exponer la estructura de la base de datos[cite: 6, 8, 9].
-4. **Validación Estricta de Entradas:** Implementación de expresiones regulares para validar formatos de documentos, correos, nombres y teléfonos antes de cualquier interacción con la base de datos[cite: 16].
-5. **Seguridad Transaccional:** Se implementó una confirmación de doble paso (`confirm_action_yn`) para operaciones destructivas (`DELETE`)[cite: 11, 16].
+* **Propietarios (`owners`)**
+* **Mascotas (`pets`)**
 
-## 🗄️ Scripts SQL de Configuración (Base de Datos y Permisos)
-Para la evaluación del sistema, se deben ejecutar las siguientes sentencias en MySQL para preparar el entorno y garantizar que el usuario de la aplicación tenga los privilegios exactos y necesarios.
+El proyecto implementa operaciones CRUD para ambas entidades:
 
-**1. Creación de la Base de Datos y Tablas (Resumen):**
+* `GET`
+* `POST`
+* `PUT`
+* `PATCH`
+* `DELETE`
+
+El desarrollo se enfoca en buenas prácticas de programación, separación de responsabilidades, seguridad en el acceso a datos y validación de información ingresada por el usuario.
+
+---
+
+## 🏗️ Arquitectura del Proyecto
+
+El código está organizado mediante una estructura modular que separa las responsabilidades principales del sistema.
+
+### 📌 Capa de Enrutamiento — `routes/`
+
+Contiene los scripts encargados de ejecutar las operaciones correspondientes a los métodos HTTP:
+
+* `GET`
+* `POST`
+* `PUT`
+* `PATCH`
+* `DELETE`
+
+Estos scripts interactúan con el usuario y generan respuestas estructuradas.
+
+### 📌 Capa de Acceso a Datos — `database/`
+
+El archivo:
+
+```text
+database/db_connection.py
+```
+
+centraliza la conexión con MySQL y las operaciones relacionadas con la base de datos.
+
+También se encarga del control de transacciones mediante:
+
+* `COMMIT`
+* `ROLLBACK`
+
+### 📌 Capa de Utilidades — `utils/`
+
+El archivo:
+
+```text
+utils/functions.py
+```
+
+contiene funciones auxiliares para:
+
+* Validación de datos.
+* Expresiones regulares.
+* Conversión y mapeo de información.
+* Funciones utilizadas por los diferentes endpoints.
+
+---
+
+## 🛡️ Seguridad y Buenas Prácticas
+
+El proyecto implementa diferentes medidas de seguridad y buenas prácticas.
+
+### 1. Prevención de Inyección SQL
+
+Las consultas utilizan parámetros preparados mediante `%s` en lugar de concatenar directamente los valores proporcionados por el usuario.
+
+Ejemplo:
+
+```python
+cursor.execute(
+    "SELECT * FROM owners WHERE document = %s",
+    (document,)
+)
+```
+
+Esto ayuda a prevenir ataques de **inyección SQL (CWE-89)**.
+
+### 2. Protección de Credenciales
+
+Las credenciales de conexión a MySQL se almacenan en un archivo `.env`.
+
+Este archivo debe estar incluido en `.gitignore` para evitar que las credenciales sean subidas al repositorio.
+
+### 3. Manejo de Errores
+
+Las operaciones de acceso a datos utilizan bloques `try-except` para manejar errores y evitar mostrar información interna de la aplicación o de la base de datos al usuario.
+
+### 4. Validación de Entradas
+
+El proyecto utiliza validaciones mediante expresiones regulares para comprobar información como:
+
+* Documentos.
+* Correos electrónicos.
+* Nombres.
+* Números telefónicos.
+
+### 5. Seguridad en Operaciones Destructivas
+
+Las operaciones `DELETE` requieren una confirmación adicional antes de ejecutarse.
+
+Esto ayuda a evitar eliminaciones accidentales.
+
+---
+
+## 🗄️ Base de Datos
+
+La aplicación utiliza **MySQL** como sistema gestor de bases de datos.
+
+### Crear la base de datos
+
 ```sql
-CREATE DATABASE IF NOT EXISTS veterinary_clinic_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS veterinary_clinic_db
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
 USE veterinary_clinic_db;
-
--- (Aquí se asume la ejecución de los scripts de creación de tablas 'owners' y 'pets' previamente desarrollados)
-
 ```
 
-**2. Creación del Usuario y Asignación de Privilegios:**
+Las tablas principales utilizadas por el sistema son:
+
+* `owners`
+* `pets`
+
+> Los scripts de creación de las tablas se encuentran en el proyecto y deben ejecutarse antes de utilizar los endpoints.
+
+---
+
+## 👤 Usuario de la Base de Datos
+
+Para la conexión de la aplicación se puede crear un usuario específico con los permisos necesarios:
 
 ```sql
--- Crear el usuario de conexión específico para la aplicación
-CREATE USER 'vet_admin'@'localhost' IDENTIFIED BY 'TuPasswordSegura';
-
--- Otorgar privilegios estrictamente necesarios para el CRUD
-GRANT SELECT, INSERT, UPDATE, DELETE ON veterinary_clinic_db.* TO 'vet_admin'@'localhost';
-
--- Aplicar los cambios
-FLUSH PRIVILEGES;
-
--- Consultar los privilegios asignados (Para captura de pantalla de evidencia)
-SHOW GRANTS FOR 'vet_admin'@'localhost';
-
+CREATE USER 'vet_admin'@'localhost'
+IDENTIFIED BY 'TuPasswordSegura';
 ```
 
-## 📂 Estructura del Directorio
+Se asignan únicamente los permisos necesarios para las operaciones CRUD:
+
+```sql
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON veterinary_clinic_db.*
+TO 'vet_admin'@'localhost';
+```
+
+Aplicar los cambios:
+
+```sql
+FLUSH PRIVILEGES;
+```
+
+Para verificar los permisos:
+
+```sql
+SHOW GRANTS FOR 'vet_admin'@'localhost';
+```
+
+---
+
+## 📂 Estructura del Proyecto
 
 ```text
 veterinary_clinic/
-├── .env                  # Variables de entorno (No subido al repo)
-├── .gitignore            # Reglas de exclusión (archivos caché y .env)
+│
+├── .env
+├── .gitignore
 ├── database/
-│   └── db_connection.py  # Motor de conexión y operaciones CRUD
+│   └── db_connection.py
+│
 ├── routes/
-│   ├── owners/           # Módulo de Propietarios
+│   ├── owners/
 │   │   ├── endpoint_get_owner.py
 │   │   ├── endpoint_post_owner.py
 │   │   ├── endpoint_put_owner.py
 │   │   ├── endpoint_patch_owner.py
 │   │   └── endpoint_delete_owner.py
-│   └── pets/             # Módulo de Mascotas
+│   │
+│   └── pets/
 │       ├── endpoint_get_pet.py
 │       ├── endpoint_post_pet.py
 │       ├── endpoint_put_pet.py
 │       ├── endpoint_patch_pet.py
 │       └── endpoint_delete_pet.py
+│
 └── utils/
-    └── functions.py      # Validadores, Regex y UI de consola
-
+    └── functions.py
 ```
+
+---
 
 ## 🚀 Instalación y Configuración
 
-1. **Clonar el repositorio y acceder a la carpeta:**
-```bash
-git clone <url-del-repositorio>
-cd veterinary_clinic
+### 1. Clonar el repositorio
 
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd veterinary_clinic
 ```
 
+---
 
-2. **Crear y activar el entorno virtual:**
+### 2. Crear el entorno virtual
+
+#### Linux / macOS
+
 ```bash
-# En Linux/Mac:
 python3 -m venv .venv
 source .venv/bin/activate
-
 ```
 
+#### Windows PowerShell
 
-3. **Instalar dependencias:**
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+---
+
+### 3. Instalar las dependencias
+
 ```bash
 pip install mysql-connector-python python-dotenv
-
 ```
 
+---
 
-4. **Configurar las variables de entorno:**
-Cree un archivo llamado `.env` en la raíz del proyecto y configure sus credenciales basadas en el usuario SQL creado anteriormente:
+### 4. Configurar las variables de entorno
+
+Crear un archivo llamado:
+
+```text
+.env
+```
+
+en la raíz del proyecto.
+
+Ejemplo:
+
 ```env
 DB_HOST=localhost
 DB_PORT=3306
 DB_NAME=veterinary_clinic_db
 DB_USER=vet_admin
-DB_PASSWORD=VetSecurePass2026*
+DB_PASSWORD=TU_PASSWORD
 DB_CHARSET=utf8mb4
-
 ```
 
+**Importante:** no subir el archivo `.env` a GitHub.
 
+El archivo `.gitignore` debe incluir:
 
-## ⚙️️ Uso del Sistema (Endpoints)
-
-Para interactuar con el sistema, ejecute cualquiera de los endpoints desde la raíz del proyecto utilizando Python.
-
-| Entidad | Operación | Comando de Ejecución | Descripción |
-| --- | --- | --- | --- |
-| **Owner** | Crear (`POST`) | `python routes/owners/endpoint_post_owner.py` | Registra dueño validando duplicados. |
-| **Owner** | Leer (`GET`) | `python routes/owners/endpoint_get_owner.py` | Consulta datos por documento. |
-| **Owner** | Parcial (`PATCH`) | `python routes/owners/endpoint_patch_owner.py` | Modifica un campo específico. |
-| **Owner** | Total (`PUT`) | `python routes/owners/endpoint_put_owner.py` | Sobrescribe toda la información. |
-| **Owner** | Eliminar (`DELETE`) | `python routes/owners/endpoint_delete_owner.py` | Borra dueño previa confirmación. |
-| **Pet** | Crear (`POST`) | `python routes/pets/endpoint_post_pet.py` | Registra mascota vinculada a un dueño. |
-| **Pet** | Leer (`GET`) | `python routes/pets/endpoint_get_pet.py` | Lista mascotas de un propietario. |
-| **Pet** | Parcial (`PATCH`) | `python routes/pets/endpoint_patch_pet.py` | Supermenú para actualizar 12 campos. |
-| **Pet** | Total (`PUT`) | `python routes/pets/endpoint_put_pet.py` | Sobrescribe datos respetando ID. |
-| **Pet** | Eliminar (`DELETE`) | `python routes/pets/endpoint_delete_pet.py` | Borra mascota previa confirmación. |
-
+```gitignore
+.env
+.venv/
+__pycache__/
+*.pyc
 ```
 
+---
+
+## ⚙️ Uso del Sistema
+
+Los diferentes endpoints se ejecutan desde la raíz del proyecto mediante Python.
+
+### 👤 Propietarios
+
+| Operación | Comando                                         | Descripción                                   |
+| --------- | ----------------------------------------------- | --------------------------------------------- |
+| `POST`    | `python routes/owners/endpoint_post_owner.py`   | Registra un propietario validando duplicados. |
+| `GET`     | `python routes/owners/endpoint_get_owner.py`    | Consulta información de un propietario.       |
+| `PATCH`   | `python routes/owners/endpoint_patch_owner.py`  | Modifica parcialmente la información.         |
+| `PUT`     | `python routes/owners/endpoint_put_owner.py`    | Actualiza completamente la información.       |
+| `DELETE`  | `python routes/owners/endpoint_delete_owner.py` | Elimina un propietario previa confirmación.   |
+
+### 🐶 Mascotas
+
+| Operación | Comando                                     | Descripción                                            |
+| --------- | ------------------------------------------- | ------------------------------------------------------ |
+| `POST`    | `python routes/pets/endpoint_post_pet.py`   | Registra una mascota vinculada a un propietario.       |
+| `GET`     | `python routes/pets/endpoint_get_pet.py`    | Consulta las mascotas de un propietario.               |
+| `PATCH`   | `python routes/pets/endpoint_patch_pet.py`  | Modifica parcialmente la información de una mascota.   |
+| `PUT`     | `python routes/pets/endpoint_put_pet.py`    | Actualiza completamente la información de una mascota. |
+| `DELETE`  | `python routes/pets/endpoint_delete_pet.py` | Elimina una mascota previa confirmación.               |
+
+---
+
+## 📦 Dependencias
+
+El proyecto utiliza las siguientes dependencias principales:
+
+```text
+mysql-connector-python
+python-dotenv
 ```
+
+Para instalarlas:
+
+```bash
+pip install mysql-connector-python python-dotenv
+```
+
+---
+
+## 🔐 Recomendaciones de Seguridad
+
+Antes de subir el proyecto a GitHub:
+
+1. Verificar que `.env` esté incluido en `.gitignore`.
+2. No publicar contraseñas reales.
+3. No incluir credenciales directamente en los archivos `.py`.
+4. Utilizar un usuario de MySQL específico para la aplicación.
+5. Otorgar únicamente los permisos necesarios.
+6. Revisar que no existan contraseñas dentro del historial de Git.
+
+---
+
