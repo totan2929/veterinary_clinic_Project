@@ -1,3 +1,12 @@
+"""
+Ajuste de la ruta del sistema (sys.path):
+Calcula dinámicamente la ruta absoluta de la raíz del proyecto (subiendo dos niveles 
+desde la ubicación actual de este script) y la inyecta en el entorno de Python.
+Esto garantiza que los módulos hermanos ('database' y 'utils') puedan ser importados 
+correctamente, independientemente de la carpeta desde la cual el usuario ejecute el archivo.
+"""
+
+
 import sys
 import os
 import json
