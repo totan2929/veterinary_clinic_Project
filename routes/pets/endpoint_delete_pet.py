@@ -13,7 +13,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from database.db_connection import execute_write_operation, execute_single_query
-# Usamos validate_boolean_yn en lugar de la que nos está dando problemas
+# Usamos validate_boolean_yn
 from utils.functions import clear_screen, pause, validate_boolean_yn
 
 def delete_pet():
