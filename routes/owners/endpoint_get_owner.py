@@ -24,6 +24,7 @@ def get_owner():
             return
 
         response = {
+            "code-status": 200,
             "status": "success",
             "data": owner
         }

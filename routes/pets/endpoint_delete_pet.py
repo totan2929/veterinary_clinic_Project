@@ -43,6 +43,7 @@ def delete_pet():
             affected_rows = execute_write_operation(sql, (pet_id,))
             
             response = {
+                "code-status": 200,
                 "status": "success",
                 "message": "Registro eliminado exitosamente de la base de datos.",
                 "affected_rows": affected_rows

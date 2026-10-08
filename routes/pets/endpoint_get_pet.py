@@ -31,6 +31,7 @@ def get_pets_by_owner():
         pets = execute_multiple_query(sql, (owner['owner_id'],))
 
         response = {
+            "code-status": 200,
             "status": "success",
             "owner": owner['first_name'],
             "total_pets": len(pets),

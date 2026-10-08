@@ -105,6 +105,7 @@ def update_pet_completely():
 
         # 4. Salida JSON
         response = {
+            "code-status": 200,
             "status": "success",
             "message": "Registro de mascota reemplazado por completo (PUT).",
             "affected_rows": affected_rows

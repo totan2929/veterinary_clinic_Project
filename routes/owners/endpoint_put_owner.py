@@ -36,6 +36,7 @@ def replace_owner():
         affected_rows = execute_write_operation(sql, params)
 
         response = {
+            "code-status": 200,
             "status": "success",
             "message": "Datos del propietario reemplazados completamente.",
             "affected_rows": affected_rows

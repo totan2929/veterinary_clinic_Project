@@ -112,6 +112,7 @@ def update_pet_field():
 
         # 4. Salida JSON
         response = {
+            "code-status": 200,
             "status": "success",
             "message": f"El campo '{column_to_update}' se actualizó correctamente.",
             "affected_rows": affected_rows
