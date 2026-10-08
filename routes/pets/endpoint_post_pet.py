@@ -68,7 +68,7 @@ def create_pet():
         response = {
             "status": "success",
             "message": "Mascota registrada exitosamente",
-            "data": {"pet_id": new_pet_id, "name": name}
+            "data": {"pet_id": new_pet_id, "name": name, "  owner_id": owner_id, "species": species, "breed": breed, "gender": gender, "estimated_birth_date": birth_date, "weight_kg": weight_kg, "color": color, "coat": coat, "has_chip": has_chip_input, "chip_number": chip_number, "is_neutered": is_neutered, "is_alive": is_alive}
         }
         print(json.dumps(response, indent=2, ensure_ascii=False))
 
